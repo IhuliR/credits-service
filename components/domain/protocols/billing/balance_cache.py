@@ -1,0 +1,9 @@
+from typing import Protocol
+
+
+class IBalanceCache(Protocol):
+    async def get(self, user_id: str) -> int | None: ...
+
+    async def set(self, user_id: str, balance: int) -> None: ...
+
+    async def invalidate(self, user_id: str) -> None: ...

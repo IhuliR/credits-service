@@ -1,0 +1,48 @@
+[project]
+name = "credits-service"
+version = "0.1.0"
+description = "Сервис кредитов и AI-генераций (тестовое задание)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiomysql>=0.2.0",
+    "alembic>=1.13.0",
+    "cryptography>=43.0.0",
+    "fastapi>=0.115.0",
+    "faststream[rabbit]>=0.6.7,<0.7",
+    "pydantic>=2.8.0",
+    "pydantic-settings>=2.4.0",
+    "redis>=5.0.1,<8",
+    "sqlalchemy[asyncio]>=2.0.46,<2.1",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27.0",
+    "mypy>=1.11.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.6.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short --import-mode=importlib"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.mypy]
+python_version = "3.12"
+namespace_packages = true
+explicit_package_bases = true
+ignore_missing_imports = true
+files = ["apps", "components", "migrations"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "B", "C4", "PIE", "I"]
+ignore = ["B008"]

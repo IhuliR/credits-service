@@ -1,0 +1,81 @@
+x-app-env: &app-env
+  MYSQL_DSN: mysql+aiomysql://credits:credits@mysql:3306/credits
+  REDIS_URL: redis://redis:6379/0
+  RABBIT_URL: amqp://guest:guest@rabbitmq:5672/
+  WEBHOOK_SECRET: change-me
+  GENERATION_COST: "10"
+  BALANCE_CACHE_TTL_SECONDS: "300"
+  LOG_LEVEL: INFO
+
+x-app-depends: &app-depends
+  migrate:
+    condition: service_completed_successfully
+  redis:
+    condition: service_healthy
+  rabbitmq:
+    condition: service_healthy
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: credits
+      MYSQL_USER: credits
+      MYSQL_PASSWORD: credits
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  migrate:
+    build: .
+    command: alembic upgrade head
+    restart: on-failure
+    environment: *app-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  api:
+    build: .
+    command: uvicorn apps.api.main:app --host 0.0.0.0 --port 8000
+    environment: *app-env
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    depends_on: *app-depends
+
+  worker:
+    build: .
+    command: python -m apps.worker.main
+    environment: *app-env
+    depends_on: *app-depends
