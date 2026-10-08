@@ -34,6 +34,7 @@ async def test_debits_credits_and_publishes_task(
     assert storage.transactions[-1].amount == -10
     assert task_publisher.published == [generation.id]
     assert "user-1" not in balance_cache.values
+    assert uow.balances.for_update_calls == ["user-1"]
 
 
 async def test_insufficient_credits(

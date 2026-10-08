@@ -38,7 +38,7 @@ class CreateGeneration:
         )
 
         async with self._uow as uow:
-            balance = await uow.balances.get(user_id)
+            balance = await uow.balances.get_for_update(user_id)
             available = 0 if balance is None else balance.balance
             if available < generation.cost:
                 raise InsufficientCreditsError(

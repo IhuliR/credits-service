@@ -37,7 +37,10 @@ async def verify_webhook_secret(
 
 
 def get_apply_purchase_webhook(container: ContainerDep) -> ApplyPurchaseWebhook:
-    return ApplyPurchaseWebhook(uow=container.unit_of_work())
+    return ApplyPurchaseWebhook(
+        uow=container.unit_of_work(),
+        balance_cache=container.balance_cache(),
+    )
 
 
 def get_user_balance(container: ContainerDep) -> GetUserBalance:

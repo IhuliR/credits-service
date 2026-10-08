@@ -17,6 +17,18 @@ class UserBalanceRepository(IUserBalanceRepository):
         model = await self._session.scalar(
             select(UserBalances).where(UserBalances.user_id == user_id)
         )
+        return self._to_domain(model)
+
+    async def get_for_update(self, user_id: str) -> UserBalance | None:
+        model = await self._session.scalar(
+            select(UserBalances)
+            .where(UserBalances.user_id == user_id)
+            .with_for_update()
+        )
+        return self._to_domain(model)
+
+    @staticmethod
+    def _to_domain(model: UserBalances | None) -> UserBalance | None:
         if model is None:
             return None
         return UserBalance(user_id=model.user_id, balance=model.balance)

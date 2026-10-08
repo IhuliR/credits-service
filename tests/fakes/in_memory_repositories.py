@@ -4,6 +4,7 @@ from components.domain.entities.balance_transaction import BalanceTransaction
 from components.domain.entities.generation import Generation
 from components.domain.entities.purchase_event import PurchaseEvent
 from components.domain.entities.user_balance import UserBalance
+from components.domain.errors.billing.errors import DuplicatePurchaseEventError
 from components.domain.types.enums.generation.generation_status import GenerationStatus
 from tests.fakes.in_memory_storage import InMemoryStorage
 
@@ -11,11 +12,16 @@ from tests.fakes.in_memory_storage import InMemoryStorage
 class InMemoryUserBalanceRepository:
     def __init__(self, storage: InMemoryStorage) -> None:
         self._storage = storage
+        self.for_update_calls: list[str] = []
 
     async def get(self, user_id: str) -> UserBalance | None:
         if user_id not in self._storage.balances:
             return None
         return UserBalance(user_id=user_id, balance=self._storage.balances[user_id])
+
+    async def get_for_update(self, user_id: str) -> UserBalance | None:
+        self.for_update_calls.append(user_id)
+        return await self.get(user_id)
 
     async def set_balance(self, user_id: str, balance: int) -> None:
         if user_id in self._storage.balances:
@@ -60,6 +66,8 @@ class InMemoryPurchaseEventRepository:
         return any(e.event_id == event_id for e in self._storage.purchase_events)
 
     async def add(self, event: PurchaseEvent) -> None:
+        if await self.exists(event.event_id):
+            raise DuplicatePurchaseEventError(event.event_id)
         self._storage.purchase_events.append(event)
 
 

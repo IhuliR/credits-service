@@ -10,3 +10,9 @@ class InsufficientCreditsError(DomainError):
         self.user_id = user_id
         self.required = required
         self.available = available
+
+
+class DuplicatePurchaseEventError(DomainError):
+    def __init__(self, event_id: str) -> None:
+        super().__init__(f"Duplicate purchase event event_id={event_id}")
+        self.event_id = event_id
