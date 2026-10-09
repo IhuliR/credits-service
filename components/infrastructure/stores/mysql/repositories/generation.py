@@ -27,6 +27,14 @@ class GenerationRepository(IGenerationRepository):
         )
         return None if model is None else generation_to_domain(model)
 
+    async def get_for_update(self, generation_id: str) -> Generation | None:
+        model = await self._session.scalar(
+            select(Generations)
+            .where(Generations.id == generation_id)
+            .with_for_update()
+        )
+        return None if model is None else generation_to_domain(model)
+
     async def update_status(
         self,
         generation_id: str,

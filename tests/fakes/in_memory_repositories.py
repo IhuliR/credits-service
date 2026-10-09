@@ -34,6 +34,7 @@ class InMemoryUserBalanceRepository:
 class InMemoryGenerationRepository:
     def __init__(self, storage: InMemoryStorage) -> None:
         self._storage = storage
+        self.for_update_calls: list[str] = []
 
     async def add(self, generation: Generation) -> None:
         self._storage.generations[generation.id] = replace(generation)
@@ -41,6 +42,10 @@ class InMemoryGenerationRepository:
     async def get(self, generation_id: str) -> Generation | None:
         generation = self._storage.generations.get(generation_id)
         return None if generation is None else replace(generation)
+
+    async def get_for_update(self, generation_id: str) -> Generation | None:
+        self.for_update_calls.append(generation_id)
+        return await self.get(generation_id)
 
     async def update_status(
         self,

@@ -9,6 +9,8 @@ class IGenerationRepository(Protocol):
 
     async def get(self, generation_id: str) -> Generation | None: ...
 
+    async def get_for_update(self, generation_id: str) -> Generation | None: ...
+
     async def update_status(
         self,
         generation_id: str,

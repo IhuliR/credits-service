@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +15,9 @@ class Settings(BaseSettings):
     generation_cost: int = 10
     balance_cache_ttl_seconds: int = 300
     generations_queue: str = "generations"
+    provider_max_attempts: int = Field(default=3, ge=1)
+    provider_timeout_seconds: float = Field(default=5.0, gt=0)
+    provider_retry_base_delay_seconds: float = Field(default=1.0, ge=0)
 
     log_level: str = "INFO"
 

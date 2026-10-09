@@ -1,3 +1,4 @@
+from copy import deepcopy
 from types import TracebackType
 from typing import Self
 
@@ -20,8 +21,10 @@ class InMemoryUnitOfWork:
         self.purchase_events = InMemoryPurchaseEventRepository(storage)
         self.transactions = InMemoryBalanceTransactionRepository(storage)
         self.commits = 0
+        self._snapshot: InMemoryStorage | None = None
 
     async def __aenter__(self) -> Self:
+        self._snapshot = deepcopy(self.storage)
         return self
 
     async def __aexit__(
@@ -30,10 +33,22 @@ class InMemoryUnitOfWork:
         exc: BaseException | None,
         tb: TracebackType | None,
     ) -> None:
-        return None
+        if self._snapshot is not None:
+            self._restore_snapshot()
 
     async def commit(self) -> None:
         self.commits += 1
+        self._snapshot = None
 
     async def rollback(self) -> None:
-        return None
+        if self._snapshot is not None:
+            self._restore_snapshot()
+
+    def _restore_snapshot(self) -> None:
+        if self._snapshot is None:
+            return
+        self.storage.balances = self._snapshot.balances
+        self.storage.generations = self._snapshot.generations
+        self.storage.purchase_events = self._snapshot.purchase_events
+        self.storage.transactions = self._snapshot.transactions
+        self._snapshot = None
