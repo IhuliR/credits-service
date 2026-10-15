@@ -43,7 +43,6 @@ class PurchaseEventRepository(IPurchaseEventRepository):
     def _is_duplicate_event_id(self, exc: IntegrityError) -> bool:
         error_args = getattr(exc.orig, "args", ())
         error_code = next(iter(error_args), None)
-        return (
-            error_code == 1062
-            and self._EVENT_ID_UNIQUE_CONSTRAINT in str(error_args)
+        return error_code == 1062 and self._EVENT_ID_UNIQUE_CONSTRAINT in str(
+            error_args
         )
