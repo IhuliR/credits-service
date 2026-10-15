@@ -1,7 +1,7 @@
 [project]
 name = "credits-service"
 version = "0.1.0"
-description = "Сервис кредитов и AI-генераций (тестовое задание)"
+description = "Асинхронный сервис учёта кредитов и обработки AI-генераций"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

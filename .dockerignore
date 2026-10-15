@@ -5,3 +5,12 @@
 .mypy_cache
 .ruff_cache
 .env
+.env.*
+.DS_Store
+.idea
+.vscode
+.coverage
+htmlcov
+dist
+build
+*.egg-info

@@ -44,9 +44,7 @@ async def test_repeated_event_is_ignored(uow, storage, balance_cache) -> None:
     assert "user-1" not in balance_cache.values
 
 
-async def test_does_not_invalidate_cache_before_commit(
-    uow, balance_cache
-) -> None:
+async def test_does_not_invalidate_cache_before_commit(uow, balance_cache) -> None:
     balance_cache.values["user-1"] = 10
     uow.commit = AsyncMock(side_effect=RuntimeError("commit failed"))
 

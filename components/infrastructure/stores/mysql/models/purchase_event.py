@@ -8,9 +8,7 @@ from components.infrastructure.stores.mysql.models.base import Base
 
 class PurchaseEvents(Base):
     __tablename__ = "purchase_events"
-    __table_args__ = (
-        UniqueConstraint("event_id", name="uq_purchase_events_event_id"),
-    )
+    __table_args__ = (UniqueConstraint("event_id", name="uq_purchase_events_event_id"),)
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     event_id: Mapped[str] = mapped_column(String(128), nullable=False)
